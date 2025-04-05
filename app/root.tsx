@@ -9,6 +9,9 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import LoadingSpinner from "./my-components/spinner";
+import { useEffectOnce } from "./hooks/useEffectOnce";
+import { useState } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -43,7 +46,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return <Outlet />;
+}  
+
+
+
+export function HydrateFallback() {
+
+  const [show,setShow] = useState(false)
+
+  useEffectOnce(()=>{
+
+    setTimeout(()=>setShow(true),100)
+
+  })
+
+  return (
+  <div className="min-h-dvh min-w-dvw flex">
+  {show && (
+    <div className="m-auto fade-in">
+    <LoadingSpinner size={100}/> 
+    </div>
+  )}
+  </div>
+  )
 }
+
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";

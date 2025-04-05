@@ -52,7 +52,6 @@ removeContact:(id:string) => set(x=> {
 
    if (index == -1) return ({})
 
-//@ts-ignore
   return ({contacts:x.contacts.toSpliced(index,1)})
 
 }

@@ -10,6 +10,7 @@ import { resetContacts, useGlobalStore } from "~/state";
 import { useEffect, useMemo, useState } from "react";
 import NiceAlert from "~/my-components/nice-alert";
 import { Command, CommandEmpty, CommandInput, CommandList } from "~/components/ui/command";
+import  LoadingSpinner  from "~/my-components/spinner";
 
 
 
@@ -48,6 +49,7 @@ export default function Home() {
   <section>
   
 
+  
 <div className=" grid-cols-12 lg:grid flex  flex-col-reverse lg:px-[4%]">
 
 
