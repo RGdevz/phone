@@ -5,7 +5,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
 
-  base:'/phone',
+  base:'/phone/',
 
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
 });
