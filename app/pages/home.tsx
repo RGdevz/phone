@@ -31,8 +31,11 @@ export default function Home() {
   const [search, setSearch] = useState('');
 
   const filteredContacts = useMemo(() => {
+
+   
+  const sort = contacts.toSorted((a,b)=>a.name.localeCompare(b.name))
   
-  return contacts.filter((c) =>
+  return sort.filter((c) =>
   c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search)
   )
 
