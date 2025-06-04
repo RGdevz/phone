@@ -15,13 +15,12 @@ import NiceAlert from "./nice-alert";
 import { FocusScope } from "@radix-ui/react-focus-scope";
 import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
+import type { ContactType, ContactTypeNoID } from "~/types";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
+import { myGroups, type MyGroupEnum } from "~/constants";
 
 
-interface p extends  Omit<React.ComponentProps<'div'>,'id'>{
-  name:string
-  phone:string
-  id:string
-} 
+interface p extends  Omit<React.ComponentProps<'div'>,'id'>, ContactType{} 
 
 export default function Contact(props:p){
 
@@ -29,6 +28,7 @@ export default function Contact(props:p){
 
   const [open,setOpen] = useState(false)
 
+  const [selectedGroup, setSelectedGroup] = useState(props.group?.[0] || "");
 
   const save = (e:Event) =>{
 
@@ -38,8 +38,9 @@ export default function Contact(props:p){
 
     const name = form.get('name') as string
     const phone = form.get('phone') as string
+    const group = form.get('group') as MyGroupEnum
 
-    editContact(props.id,{name,phone})
+    editContact(props.id,{name,phone,group:[group]})
 
     setOpen(false)
 
@@ -65,6 +66,7 @@ export default function Contact(props:p){
       <div className="flex flex-col">
       {/* Name */}
       <h2 className="text-lg font-semibold">{props.name}</h2>
+      <h2 className="text-md text-gray-700">{props.group?.join(', ')}</h2>
       {/* Phone Number */}
       <p className="text-sm text-gray-600">{props.phone}</p>
       </div>
@@ -116,8 +118,16 @@ export default function Contact(props:p){
         defaultValue={props.phone}
         className="col-span-3"
         />
-      </div>
-    </div>
+
+   <Label className="text-right"> Group </Label>
+ 
+ 
+ <select defaultValue={props.group?.[0]} name="group" className=" col-span-3 p-1 rounded-base border-2 bg-white">
+  {myGroups.map(x=><option>{x}</option>)}
+ </select>
+
+   </div>
+  </div>
 
 
     <DialogFooter>
@@ -146,7 +156,6 @@ export default function Contact(props:p){
 
   </DialogContent>
 </Dialog>
-
 
 
 

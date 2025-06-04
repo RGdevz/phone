@@ -1,4 +1,7 @@
 import { type RouteConfig, index,layout, route } from "@react-router/dev/routes";
+import { useGlobalStore } from "./state";
+import { redirect } from "react-router";
+
 
 export default [
     

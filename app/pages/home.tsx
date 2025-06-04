@@ -11,7 +11,8 @@ import { useEffect, useMemo, useState } from "react";
 import NiceAlert from "~/my-components/nice-alert";
 import { Command, CommandEmpty, CommandInput, CommandList } from "~/components/ui/command";
 import  LoadingSpinner  from "~/my-components/spinner";
-
+import { useAuth } from "~/hooks/useAuth";
+import { type MyGroupEnum, myGroups } from "~/constants";
 
 
 
@@ -26,21 +27,33 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
 
+  const loggedIn = useAuth()
+
+  if (!loggedIn) return null;
 
   const {contacts,addContact}= useGlobalStore()
 
   const [search, setSearch] = useState('');
 
-  const filteredContacts = useMemo(() => {
+  const [selectedGroup,setSelectedGroup] = useState<MyGroupEnum>('')
 
+
+
+  const filteredContacts = useMemo(() => {
    
-  const sort = contacts.toSorted((a,b)=>a.name.localeCompare(b.name))
+  let results = contacts.filter(Boolean).toSorted((a,b)=>a.name.localeCompare(b.name))
   
-  return sort.filter((c) =>
+  results  = results.filter((c) =>
   c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search)
   )
 
-  }, [contacts, search]);
+  if (selectedGroup && selectedGroup != 'No Group'){
+
+    results= results.filter(x=>x.group?.includes(selectedGroup))
+  }
+
+  return results
+  }, [contacts, search,selectedGroup]);
 
 
 
@@ -50,7 +63,7 @@ export default function Home() {
   
 
   
-<div className=" grid-cols-12 lg:grid flex  flex-col-reverse lg:px-[4%]">
+<div className=" grid-cols-12 lg:grid flex  flex-col-reverse lg:px-[4%] max-w-[1800px] mx-auto">
 
 
 
@@ -60,6 +73,17 @@ export default function Home() {
   <div className=" py-3"/>
 
   <h1 className="text-center text-5xl mb-5 font-black hidden lg:block">Phone Book</h1>
+
+
+<section className="mb-7 text-center max-w-[500px] mx-auto">
+
+<h1 className=" font-black mb-3">Groups</h1>
+
+<div className="flex flex-col gap-3">
+{myGroups.map(x=><Button className=" border-2 rounded-2xl bg-amber-100 p-6" onClick={()=>setSelectedGroup(()=>x)}>{x}</Button>)}
+</div>
+
+</section>
 
 
 <div className="pb-7 flex justify-center gap-2">
@@ -105,6 +129,7 @@ export default function Home() {
 
  bg-white
   lg:p-3"> 
+
 
   {filteredContacts.length == 0 && <h1 className="text-center p-5">No results</h1>}
 

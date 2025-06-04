@@ -1,6 +1,9 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { v4 as uuidv4 } from 'uuid';
+import type { ContactType, ContactTypeNoID } from './types';
+import { myGroups, type MyGroupEnum } from './constants';
+
 
 
 const dummyData = [
@@ -13,24 +16,58 @@ const dummyData = [
 
 
 interface StateInfo {
-  contacts:Array<{name:string,phone:string,id:string}>,
-  addContact:(name:string,phone:string) =>unknown
+  username:string,
+  loggedIn:boolean,
+  login:(username:string,password:string)=>void,
+  contacts:Array<ContactType>,
+  addContact:(user:ContactTypeNoID) =>unknown
   removeContact:(id:string) => unknown
-  editContact:(id:string,contact:Omit<ContactType,'id'>)=>unknown
+  editContact:(id:string,contact:ContactTypeNoID)=>unknown
   setContacts:(list:Array<ContactType>)=>any
 
 }
 
+
+
+
 export const useGlobalStore = create<StateInfo>((set,get)=>({
+
+  loggedIn:false,
+
+  username:'',
+
+
+  login:(username:string,password:string)=>set(x=>{
+
+    if (username != 'roei') throw new Error('bad username')
+    if (password != '123') throw new Error("bad password")
+
+    return{
+      username:username,
+      loggedIn:true
+    }
+  }
+),
 
 
 
 
 setContacts:(list)=>set(x=>({contacts:list})),
 
-contacts:[...dummyData],
+contacts:[...dummyData.map(x=>({...x,group:[myGroups[Math.floor(Math.random() * 3)]]}))],
 
-addContact:(name:string,phone:string)=> set(x=>({contacts: [...x.contacts,{name,phone,id:uuidv4()}]})),
+
+addContact:(user:ContactTypeNoID)=> set(x=>{
+  
+  const c = {...user,id:uuidv4()}
+  c.group = c.group || ['No Group']
+
+  return{
+   contacts:[...x.contacts,c]
+  }
+}
+),
+
 
 editContact:(id,contact) => set(x=>{
 

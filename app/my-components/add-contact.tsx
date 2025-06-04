@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"; // Adjust path as needed
 import { Label } from "@/components/ui/label"; // Adjust path as needed
 import { useGlobalStore } from '~/state';
 import { FocusScope } from '@radix-ui/react-focus-scope';
+import { myGroups } from '~/constants';
 
 
 
@@ -35,8 +36,9 @@ export default function AddContactView(props:PropsWithChildren) {
 
      const name = form.get('name') as string
      const phone = form.get('phone') as string
+     const group = form.get('group') as string
 
-     addContact(name,phone)
+     addContact({name:name,phone:phone,group:[group]})
 
      setOpen(false)
 
@@ -94,6 +96,13 @@ export default function AddContactView(props:PropsWithChildren) {
                      type="tel"
                           
                    />
+
+
+               <Label className="text-right"> Group </Label>
+                <select  name="group" className=" col-span-3 p-1 rounded-base border-2 bg-white">
+               {myGroups.map(x=><option>{x}</option>)}
+                 </select>
+
                  </div>
                 </div>
 
