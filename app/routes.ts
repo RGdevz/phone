@@ -1,6 +1,4 @@
 import { type RouteConfig, index,layout, route } from "@react-router/dev/routes";
-import { useGlobalStore } from "./state";
-import { redirect } from "react-router";
 
 
 export default [
@@ -8,6 +6,8 @@ export default [
     route('/login','pages/login.tsx'),
 
    layout('layouts/main.tsx',[
+
+    route('/groups','pages/groups.tsx'),
 
     index("pages/home.tsx")
 

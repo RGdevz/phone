@@ -7,6 +7,7 @@ export default function MyHeader() {
   const { username, loggedIn } = useGlobalStore();
 
   function logout(){
+    localStorage.removeItem('store')
     window.location.href = '/'
   }
 
@@ -17,7 +18,11 @@ export default function MyHeader() {
 
           {/* Left side: logo and user info if logged in */}
           <div className="flex items-center gap-8">
+
+            <Link viewTransition to={'/'}>
             <h1 className="text-xl font-bold">MySite</h1>
+             </Link>
+
             {loggedIn && (
               <div className="flex items-center gap-4">
                 <span className="text-lg font-medium">Welcome {username}</span>
@@ -32,6 +37,7 @@ export default function MyHeader() {
           <nav className="flex gap-4 items-center">
             <Link viewTransition to="/" className="text-lg text-neutral-900 hover:text-neutral-600">Home</Link>
             <Link viewTransition to="/about" className="text-lg text-neutral-900 hover:text-neutral-600">About</Link>
+            <Link viewTransition to="/groups" className="text-lg text-neutral-900 hover:text-neutral-600">Groups</Link>
 
             {!loggedIn && (
               <Link viewTransition to="/login">

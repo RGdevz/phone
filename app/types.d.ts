@@ -4,7 +4,7 @@ export interface ContactType{
     name:string,
     phone:string  ,
     id:string
-    group?:Array<MyGroupEnum>
+    group?:MyGroupEnum
 }
 
 

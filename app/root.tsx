@@ -56,16 +56,16 @@ export function HydrateFallback() {
 
   useEffectOnce(()=>{
 
-    setTimeout(()=>setShow(true),100)
+   setTimeout(()=>setShow(true),100)
 
   })
 
   return (
   <div className="min-h-dvh min-w-dvw flex">
   {show && (
-    <div className="m-auto fade-in">
-    <LoadingSpinner size={100}/> 
-    </div>
+  <div className="m-auto fade-in">
+  <LoadingSpinner size={100}/> 
+  </div>
   )}
   </div>
   )

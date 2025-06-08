@@ -31,7 +31,9 @@ export default function Home() {
 
   if (!loggedIn) return null;
 
-  const {contacts,addContact}= useGlobalStore()
+
+
+  const {contacts,groups}= useGlobalStore()
 
   const [search, setSearch] = useState('');
 
@@ -49,7 +51,7 @@ export default function Home() {
 
   if (selectedGroup && selectedGroup != 'No Group'){
 
-    results= results.filter(x=>x.group?.includes(selectedGroup))
+   results= results.filter(x=>x.group ==selectedGroup)
   }
 
   return results
@@ -80,7 +82,11 @@ export default function Home() {
 <h1 className=" font-black mb-3">Groups</h1>
 
 <div className="flex flex-col gap-3">
-{myGroups.map(x=><Button className=" border-2 rounded-2xl bg-amber-100 p-6" onClick={()=>setSelectedGroup(()=>x)}>{x}</Button>)}
+{
+groups.map((x,i)=><Button key={i} 
+className=" border-2 rounded-2xl bg-amber-100 p-6"
+onClick={()=>setSelectedGroup(()=>x)}>{x}</Button>)
+}
 </div>
 
 </section>
@@ -97,10 +103,8 @@ export default function Home() {
 <Button className="mx-2 w-full  max-w-[200px] py-7  bg-orange-100">Add</Button>
 </AddContactView>
 
-  </div>
-
-  </div>
-
+</div>
+</div>
 
 
 
@@ -134,7 +138,7 @@ export default function Home() {
   {filteredContacts.length == 0 && <h1 className="text-center p-5">No results</h1>}
 
    {filteredContacts.map((x, i) => (
-     <Contact className={i % 2 !== 0 ? 'bg-amber-50' : ''} key={x.id} {...x} />
+   <Contact className={i % 2 !== 0 ? 'bg-amber-50' : ''} key={x.id} {...x} />
    ))}
 
   </Card>

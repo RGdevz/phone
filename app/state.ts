@@ -1,18 +1,27 @@
 import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
+import {  persist } from 'zustand/middleware'
 import { v4 as uuidv4 } from 'uuid';
 import type { ContactType, ContactTypeNoID } from './types';
 import { myGroups, type MyGroupEnum } from './constants';
 
 
-
-const dummyData = [
+function dummyData(){
+  const dummyData = [
   { name: 'Alice Johnson', phone: '555-123-4567', id: '1' },
   { name: 'Bob Martinez', phone: '555-987-6543', id: '2' },
   { name: 'Carla Nguyen', phone: '555-246-8101', id: '3' },
   { name: 'David Smith', phone: '555-369-1212', id: '4' },
-] as Array<ContactType>;
-    
+].map(x=>({
+
+ ...x,
+ group:myGroups[Math.floor(Math.random() * 3)]
+
+})
+) as Array<ContactType>;
+ return dummyData
+}
+
+
 
 
 interface StateInfo {
@@ -24,13 +33,48 @@ interface StateInfo {
   removeContact:(id:string) => unknown
   editContact:(id:string,contact:ContactTypeNoID)=>unknown
   setContacts:(list:Array<ContactType>)=>any
+  role:'admin'|'user'
+  setGroups:(arr:string[])=>void
+  groups:string[]
+  deleteGroup:(name:string)=>void
+  addGroup:(name:string)=>void
 
 }
 
 
 
 
-export const useGlobalStore = create<StateInfo>((set,get)=>({
+export const useGlobalStore = create<StateInfo>()( 
+  
+  persist((set,_get)=>{
+  
+  return {
+
+
+    addGroup:(name)=>set(state=>({groups:Array.from(new Set([...state.groups,name]))})),
+
+
+    deleteGroup:(name)=>set(state=>{
+    
+   const ind = state.groups.findIndex(x=>x == name)
+
+   if (ind == -1) return ({})
+
+   return{
+
+   groups:state.groups.toSpliced(ind,1)
+
+   }
+
+  }),
+
+
+
+  setGroups:(arr)=>set(x=>({groups:[...arr]})),
+
+  groups:[...myGroups],
+
+  role:'user',
 
   loggedIn:false,
 
@@ -43,28 +87,29 @@ export const useGlobalStore = create<StateInfo>((set,get)=>({
     if (password != '123') throw new Error("bad password")
 
     return{
-      username:username,
-      loggedIn:true
+    username:username,
+    loggedIn:true
     }
-  }
-),
+
+   }
+   ),
 
 
 
 
 setContacts:(list)=>set(x=>({contacts:list})),
 
-contacts:[...dummyData.map(x=>({...x,group:[myGroups[Math.floor(Math.random() * 3)]]}))],
+contacts:[...dummyData()],
+
 
 
 addContact:(user:ContactTypeNoID)=> set(x=>{
   
-  const c = {...user,id:uuidv4()}
-  c.group = c.group || ['No Group']
-
-  return{
-   contacts:[...x.contacts,c]
-  }
+ const c = {...user,id:uuidv4()}
+ c.group = c.group || 'No Group'
+ return{
+ contacts:[...x.contacts,c]
+ }
 }
 ),
 
@@ -96,11 +141,15 @@ removeContact:(id:string) => set(x=> {
 )
 
 }
+},{name:'store'}
 ))
 
 
 
 
+
+
 export function resetContacts(){
-  useGlobalStore.getState().setContacts(...[dummyData])
+  useGlobalStore.getState().setContacts(...[dummyData()])
+  useGlobalStore.getState().setGroups([...myGroups])
 }

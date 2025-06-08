@@ -38,7 +38,7 @@ export default function AddContactView(props:PropsWithChildren) {
      const phone = form.get('phone') as string
      const group = form.get('group') as string
 
-     addContact({name:name,phone:phone,group:[group]})
+     addContact({name:name,phone:phone,group:group})
 
      setOpen(false)
 

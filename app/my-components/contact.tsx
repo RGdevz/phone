@@ -40,7 +40,7 @@ export default function Contact(props:p){
     const phone = form.get('phone') as string
     const group = form.get('group') as MyGroupEnum
 
-    editContact(props.id,{name,phone,group:[group]})
+    editContact(props.id,{name,phone,group:group})
 
     setOpen(false)
 
@@ -66,7 +66,7 @@ export default function Contact(props:p){
       <div className="flex flex-col">
       {/* Name */}
       <h2 className="text-lg font-semibold">{props.name}</h2>
-      <h2 className="text-md text-gray-700">{props.group?.join(', ')}</h2>
+      <h2 className="text-md text-gray-700">{props.group}</h2>
       {/* Phone Number */}
       <p className="text-sm text-gray-600">{props.phone}</p>
       </div>

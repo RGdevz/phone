@@ -14,13 +14,13 @@ export default function NiceAlert(props:p){
    <AlertDialog>
   <AlertDialogTrigger asChild>
     
-    {props.children || <h1>No children</h1>}
+   {props.children || <h1>No children for alert</h1>}
 
    </AlertDialogTrigger>
   <AlertDialogContent>
     <AlertDialogHeader>
-      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-      <AlertDialogDescription>{props.message}</AlertDialogDescription>
+    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+    <AlertDialogDescription>{props.message}</AlertDialogDescription>
     </AlertDialogHeader>
     <AlertDialogFooter>
     <AlertDialogCancel onClick={()=>props.onCancel?.()}>Cancel</AlertDialogCancel>
