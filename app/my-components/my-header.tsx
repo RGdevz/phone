@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
-import { Card } from "~/components/ui/card";
 import { useGlobalStore } from "~/state";
 import { Menu, X, Phone } from "lucide-react";
 import { useState } from "react";
@@ -12,7 +11,7 @@ export default function MyHeader() {
 
   function logout(){
     localStorage.removeItem('store')
-    window.location.href = '/'
+    window.location.href = '/phone'
   }
 
   const navLinks = [
