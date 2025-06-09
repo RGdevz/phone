@@ -1,161 +1,138 @@
-import type { Route } from "./+types/home";
-
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
-import { Dialog } from "~/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "~/components/ui/alert-dialog";
-import Contact from "~/my-components/contact";
-import AddContactView from "~/my-components/add-contact";
-import { resetContacts, useGlobalStore } from "~/state";
-import { useEffect, useMemo, useState } from "react";
-import NiceAlert from "~/my-components/nice-alert";
-import { Command, CommandEmpty, CommandInput, CommandList } from "~/components/ui/command";
-import  LoadingSpinner  from "~/my-components/spinner";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { useGlobalStore } from "~/state";
+import { Phone, Users, UserPlus, Search } from "lucide-react";
+import { Card } from "~/components/ui/card";
+import { Link } from "react-router";
 import { useAuth } from "~/hooks/useAuth";
-import { type MyGroupEnum, myGroups } from "~/constants";
-
-
-
-export function meta({}: Route.MetaArgs) {
-  return [
-   { title: "New React Router App" },
-   { name: "description", content: "Welcome to React Router!" },
-  ];
- }
-
-
 
 export default function Home() {
 
-  const loggedIn = useAuth()
+    const loggedIn = useAuth()
+    if (!loggedIn) return null;
 
-  if (!loggedIn) return null;
-
-
-
-  const {contacts,groups}= useGlobalStore()
-
-  const [search, setSearch] = useState('');
-
-  const [selectedGroup,setSelectedGroup] = useState<MyGroupEnum>('')
+  const { contacts, groups } = useGlobalStore();
+  const [isLoaded, setIsLoaded] = useState(false);
 
 
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
-  const filteredContacts = useMemo(() => {
-   
-  let results = contacts.filter(Boolean).toSorted((a,b)=>a.name.localeCompare(b.name))
-  
-  results  = results.filter((c) =>
-  c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search)
-  )
+  const stats = [
+    {
+      icon: <Phone className="h-6 w-6" />,
+      label: "Total Contacts",
+      value: contacts.length,
+      bgColor: "bg-amber-100"
+    },
+    {
+      icon: <Users className="h-6 w-6" />,
+      label: "Groups",
+      value: groups.length,
+      bgColor: "bg-yellow-100"
+    },
+    {
+      icon: <UserPlus className="h-6 w-6" />,
+      label: "No Group",
+      value: contacts.filter(c => !c.group || c.group === "No Group").length,
+      bgColor: "bg-orange-100"
+    }
+  ];
 
-  if (selectedGroup && selectedGroup != 'No Group'){
+  const links = [
+    {
+      icon: <Search className="h-5 w-5" />,
+      label: "Browse Contacts",
+      description: "View and manage your contact list",
+      href: "/contacts"
+    },
+    {
+      icon: <Users className="h-5 w-5" />,
+      label: "Manage Groups",
+      description: "Organize your contacts in groups",
+      href: "/groups"
+    }
+  ];
 
-   results= results.filter(x=>x.group ==selectedGroup)
-  }
+  return (
+    <div className="min-h-screen">
+      <div className="container mx-auto px-4 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-4xl font-black mb-2">
+            Welcome to Your Phone Book
+          </h1>
+          <p className="text-gray-600">
+            Manage your contacts with ease
+          </p>
+        </motion.div>
 
-  return results
-  }, [contacts, search,selectedGroup]);
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 lg:mx-30">
+          {stats.map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+            >
+              <Card className={`p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 ${stat.bgColor}`}>
+                <div className="flex items-center justify-center mb-4">
+                  {stat.icon}
+                </div>
+                <div className="text-sm text-gray-600 mb-1">{stat.label}</div>
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ 
+                    type: "spring",
+                    stiffness: 260,
+                    damping: 20,
+                    delay: 0.5 + (i * 0.1)
+                  }}
+                  className="text-3xl font-bold"
+                >
+                  {stat.value}
+                </motion.div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
 
-
-
- return (
-
-  <section>
-  
-
-  
-<div className=" grid-cols-12 lg:grid flex  flex-col-reverse lg:px-[4%] max-w-[1800px] mx-auto">
-
-
-
-<div className="col-span-4 mt-5 mb-5">
-
-
-  <div className=" py-3"/>
-
-  <h1 className="text-center text-5xl mb-5 font-black hidden lg:block">Phone Book</h1>
-
-
-<section className="mb-7 text-center max-w-[500px] mx-auto">
-
-<h1 className=" font-black mb-3">Groups</h1>
-
-<div className="flex flex-col gap-3">
-{
-groups.map((x,i)=><Button key={i} 
-className=" border-2 rounded-2xl bg-amber-100 p-6"
-onClick={()=>setSelectedGroup(()=>x)}>{x}</Button>)
-}
-</div>
-
-</section>
-
-
-<div className="pb-7 flex justify-center gap-2">
-
-
-<NiceAlert message="Are you sure" onOk={()=>resetContacts()}>
-<Button  className="mx-2 py-7 w-full max-w-[200px] bg-amber-50">Reset</Button>
-</NiceAlert>
-
-<AddContactView>
-<Button className="mx-2 w-full  max-w-[200px] py-7  bg-orange-100">Add</Button>
-</AddContactView>
-
-</div>
-</div>
-
-
-
-  <div className="col-span-8 ">
-
-
-<div className=" mx-auto px-5 max-w-[60rem] flex flex-col gap-4">
-
-<div className="lg:py-2"/>
-
-
-<Command  className="p-3 ">
-  <CommandInput className=" placeholder-black" onValueChange={v=>setSearch(v)}  placeholder="Type to search..." />
-</Command>
-
-
-<Card className="overflow-y-auto
- lg:max-h-[65dvh]
-  my-scroll
- max-h-[40rem]
- py-0
- more-shadow
-  overflow-x-hidden
- flex flex-col
-  gap-0 
-
- bg-white
-  lg:p-3"> 
-
-
-  {filteredContacts.length == 0 && <h1 className="text-center p-5">No results</h1>}
-
-   {filteredContacts.map((x, i) => (
-   <Contact className={i % 2 !== 0 ? 'bg-amber-50' : ''} key={x.id} {...x} />
-   ))}
-
-  </Card>
-
-  </div>
-
-  </div>
-
-
-
-
-  </div>
-
-
-
-
-  </section>
-
+        {/* Quick Links Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          <h2 className="text-2xl font-bold mb-6 text-center ">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[1000px] mx-auto">
+            {links.map((link, i) => (
+              <motion.div
+                key={link.label}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: isLoaded ? 1 : 0, x: isLoaded ? 0 : -20 }}
+                transition={{ duration: 0.5, delay: 0.9 + (i * 0.1) }}
+              >
+                <Link viewTransition to={link.href} className="block">
+                  <Card className="p-6 hover:scale-101 transition-all duration-300 cursor-pointer hover:bg-gray-50">
+                    <div className="flex items-center gap-3 mb-2">
+                      {link.icon}
+                      <h3 className="font-semibold">{link.label}</h3>
+                    </div>
+                    <p className="text-gray-900">{link.description}</p>
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </div>
   );
 }

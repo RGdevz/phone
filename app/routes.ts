@@ -9,6 +9,7 @@ export default [
 
     route('/groups','pages/groups.tsx'),
 
+    route('/contacts','pages/contacts.tsx'),
     index("pages/home.tsx")
 
    ])

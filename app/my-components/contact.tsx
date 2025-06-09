@@ -28,7 +28,6 @@ export default function Contact(props:p){
 
   const [open,setOpen] = useState(false)
 
-  const [selectedGroup, setSelectedGroup] = useState(props.group?.[0] || "");
 
   const save = (e:Event) =>{
 
@@ -122,7 +121,9 @@ export default function Contact(props:p){
    <Label className="text-right"> Group </Label>
  
  
- <select defaultValue={props.group?.[0]} name="group" className=" col-span-3 p-1 rounded-base border-2 bg-white">
+ <select defaultValue={props.group}
+  name="group" 
+  className=" col-span-3 p-1 rounded-base border-2 bg-white">
   {myGroups.map(x=><option>{x}</option>)}
  </select>
 

@@ -36,8 +36,13 @@ export default function MyHeader() {
           {/* Right side: navigation */}
           <nav className="flex gap-4 items-center">
             <Link viewTransition to="/" className="text-lg text-neutral-900 hover:text-neutral-600">Home</Link>
-            <Link viewTransition to="/about" className="text-lg text-neutral-900 hover:text-neutral-600">About</Link>
+         
+            {/* <Link viewTransition to="/about" className="text-lg text-neutral-900 hover:text-neutral-600">About</Link>
+          */}
+            <Link viewTransition to="/contacts" className="text-lg text-neutral-900 hover:text-neutral-600">Contacts</Link>
+
             <Link viewTransition to="/groups" className="text-lg text-neutral-900 hover:text-neutral-600">Groups</Link>
+
 
             {!loggedIn && (
               <Link viewTransition to="/login">

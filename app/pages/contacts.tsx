@@ -1,0 +1,145 @@
+import type { Route } from "./+types/home";
+
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
+import { Dialog } from "~/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "~/components/ui/alert-dialog";
+import Contact from "~/my-components/contact";
+import AddContactView from "~/my-components/add-contact";
+import { resetContacts, useGlobalStore } from "~/state";
+import { useEffect, useMemo, useState } from "react";
+import NiceAlert from "~/my-components/nice-alert";
+import { Command, CommandEmpty, CommandInput, CommandList } from "~/components/ui/command";
+import LoadingSpinner from "~/my-components/spinner";
+import { useAuth } from "~/hooks/useAuth";
+import { type MyGroupEnum, myGroups } from "~/constants";
+import { X } from "lucide-react";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "New React Router App" },
+    { name: "description", content: "Welcome to React Router!" },
+  ];
+}
+
+export default function Home() {
+  const loggedIn = useAuth()
+  if (!loggedIn) return null;
+
+  const {contacts, groups} = useGlobalStore()
+  const [search, setSearch] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<MyGroupEnum>('')
+
+  const filteredContacts = useMemo(() => {
+    let results = contacts.filter(Boolean).toSorted((a,b)=>a.name.localeCompare(b.name))
+    results = results.filter((c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search)
+    )
+    if (selectedGroup){
+      results = results.filter(x=>x.group == selectedGroup)
+    }
+    return results
+  }, [contacts, search, selectedGroup]);
+
+  return (
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-black text-center mb-8">Phone Book</h1>
+        
+        <div className="grid grid-cols-12 gap-6">
+          {/* Left Column - Groups and Actions */}
+          <div className="col-span-12 lg:col-span-3">
+            <div className="flex flex-col gap-4">
+              <Card className="py-10 bg-amber-200">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold">Groups</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col gap-2">
+                    {groups.map((group, i) => (
+                      <Button
+                        key={i}
+                        variant="neutral"
+                        className={`w-full py-4 justify-start text-left font-medium transition-colors ${
+                          selectedGroup === group 
+                            ? 'bg-amber-100 hover:bg-amber-200' 
+                            : 'hover:bg-gray-100'
+                        }`}
+                        onClick={() => setSelectedGroup(group === selectedGroup ? '' : group)}
+                      >
+                        {group}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-3">
+                <AddContactView>
+                  <Button className="w-full py-3 bg-orange-100 hover:bg-orange-200">
+                    Add Contact
+                  </Button>
+                </AddContactView>
+
+                <NiceAlert message="Are you sure you want to reset all contacts?" onOk={()=>resetContacts()}>
+                  <Button className="w-full py-3 bg-amber-50 hover:bg-amber-100">
+                    Reset Contacts
+                  </Button>
+                </NiceAlert>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Contacts */}
+          <div className="col-span-12 lg:col-span-9">
+            <div className="flex flex-col gap-4">
+              <Command className="p-3">
+                <CommandInput 
+                  className="placeholder-black" 
+                  onValueChange={v=>setSearch(v)} 
+                  placeholder="Search contacts..." 
+                />
+              </Command>
+
+              {/* Filter Indicator */}
+              {selectedGroup && (
+                <div className="flex items-center gap-2 px-2">
+                  <span className="text-sm text-gray-600">
+                    Filtered by group:
+                  </span>
+                  <div className="bg-amber-100 px-3 py-1 rounded-full flex items-center gap-2">
+                    <span className="font-medium">{selectedGroup}</span>
+                    <Button
+                      variant="neutral"
+                      size="icon"
+                      className="h-5 w-5 rounded-full hover:bg-amber-200"
+                      onClick={() => setSelectedGroup('')}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <Card className="overflow-y-auto lg:max-h-[calc(100vh-16rem)] my-scroll py-0 more-shadow overflow-x-hidden flex flex-col gap-0 bg-white lg:p-3">
+                {filteredContacts.length === 0 && (
+                  <div className="text-center p-8 text-gray-500">
+                    No contacts found
+                  </div>
+                )}
+                {filteredContacts.map((contact, i) => (
+                  <Contact 
+                    key={contact.id} 
+                    {...contact} 
+                    className={i % 2 !== 0 ? 'bg-amber-50' : ''}
+                  />
+                ))}
+              </Card>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

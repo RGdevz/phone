@@ -5,6 +5,12 @@ import type { ContactType, ContactTypeNoID } from './types';
 import { myGroups, type MyGroupEnum } from './constants';
 
 
+const users = [
+
+  {user:'roei',password:'123',role:'admin'},
+  {user:'user',password:'123',role:'user'},
+] satisfies Array<{user:string,password:string,role:'admin'|'user'}>
+
 function dummyData(){
   const dummyData = [
   { name: 'Alice Johnson', phone: '555-123-4567', id: '1' },
@@ -56,17 +62,17 @@ export const useGlobalStore = create<StateInfo>()(
 
     deleteGroup:(name)=>set(state=>{
     
-   const ind = state.groups.findIndex(x=>x == name)
+      const ind = state.groups.findIndex(x=>x == name)
+      if (ind == -1) return ({})
 
-   if (ind == -1) return ({})
+      // Update contacts in the deleted group to 'No Group'
+      const updatedContacts = state.contacts.filter(x=>x.group != name)
 
-   return{
-
-   groups:state.groups.toSpliced(ind,1)
-
-   }
-
-  }),
+      return {
+        groups: state.groups.toSpliced(ind, 1),
+        contacts: updatedContacts
+      }
+    }),
 
 
 
@@ -81,13 +87,16 @@ export const useGlobalStore = create<StateInfo>()(
   username:'',
 
 
-  login:(username:string,password:string)=>set(x=>{
+  login:(username:string,password:string)=>set(_=>{
 
-    if (username != 'roei') throw new Error('bad username')
-    if (password != '123') throw new Error("bad password")
+
+    const user = users.find(x=>x.user == username && x.password == password)
+    if (!user) throw new Error('bad username')
+
 
     return{
-    username:username,
+     role:user.role,
+    username:user.user,
     loggedIn:true
     }
 
