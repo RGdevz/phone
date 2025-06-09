@@ -23,7 +23,7 @@ interface p extends  Omit<React.ComponentProps<'div'>,'id'>, ContactType{}
 
 export default function Contact(props:p){
 
-  const {removeContact,editContact,groups} = useGlobalStore()
+  const {removeContact,addToFavorites,groups,editContact} = useGlobalStore()
 
   const [open,setOpen] = useState(false)
 
@@ -48,7 +48,8 @@ export default function Contact(props:p){
 
   const toggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
-    editContact(props.id, { ...props, isFavorite: !props.isFavorite });
+    
+    addToFavorites(props.id)
   }
 
    return(
@@ -70,7 +71,7 @@ export default function Contact(props:p){
     <div className="flex items-center space-x-4">
      
      <Avatar >
-    <AvatarImage src="asd" />
+    <AvatarImage src="" />
     <AvatarFallback>{props.name.split(/\s+/).filter(Boolean).map(x=>x[0].toUpperCase()).join('')}</AvatarFallback>
     </Avatar>
 
@@ -165,9 +166,9 @@ export default function Contact(props:p){
   <Button type="button" className=" bg-red-400">Delete</Button>
   </NiceAlert>
 
-   <Button   type="submit">Save changes</Button>
+   <Button  type="submit">Save changes</Button>
    </div>
-    </DialogFooter>
+   </DialogFooter>
 
   </form>
 

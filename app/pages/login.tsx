@@ -10,13 +10,13 @@ import type { FormEventHandler } from "react";
 export default function LoginPage() {
 
   const {login:loginFunc} = useGlobalStore()
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   function sumbitForm(e:Event){
     e.preventDefault()
     try{
-    //@ts-expect-error
-    const _formData = new FormData(e.target)
+      
+    const _formData = new FormData(e.target as HTMLFormElement)
 
     const username= _formData.get('username') as string
     const password = _formData.get('password') as string
@@ -26,7 +26,7 @@ export default function LoginPage() {
     navigate('/')
     
   }catch(e){
-      alert(String(e))
+    alert(String(e))
     }
     
   }

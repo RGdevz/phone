@@ -1,103 +1,35 @@
 import {
-  isRouteErrorResponse,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
+  HashRouter,
+  Routes,
+  Route,
+  BrowserRouter,
 } from "react-router";
-
-import type { Route } from "./+types/root";
 import "./app.css";
-import LoadingSpinner from "./my-components/spinner";
-import { useEffectOnce } from "./hooks/useEffectOnce";
-import { useState } from "react";
-
-export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
-];
-
-export function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
-  );
-}
+import Login from "./pages/login";
+import MainLayout from "./layouts/main";
+import Groups from "./pages/groups";
+import Contacts from "./pages/contacts";
+import Home from "./pages/home";
+import { useGlobalStore } from "./state";
 
 export default function App() {
-  return <Outlet />;
-}  
-
-
-
-export function HydrateFallback() {
-
-  const [show,setShow] = useState(false)
-
-  useEffectOnce(()=>{
-
-   setTimeout(()=>setShow(true),100)
-
-  })
+  const {loggedIn} = useGlobalStore()
 
   return (
-  <div className="min-h-dvh min-w-dvw flex">
-  {show && (
-  <div className="m-auto fade-in">
-  <LoadingSpinner size={100}/> 
-  </div>
-  )}
-  </div>
-  )
-}
-
-
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
-
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-     error.status === 404
-    ? "The requested page could not be found."
-    : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
-  }
-
-  
-  return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-      <pre className="w-full p-4 overflow-x-auto">
-      <code>{stack}</code>
-      </pre>
-      )}
-    </main>
+    <HashRouter >
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        {loggedIn ? (
+          <Route element={<MainLayout />}>
+           <Route path="/groups" element={<Groups />} />
+           <Route path="/contacts" element={<Contacts />} />
+           <Route index element={<Home />} />
+          </Route>
+        ) : (
+          <Route path="*" element={<Login />} />
+        )}
+      </Routes>
+    </HashRouter>
   );
 }
+

@@ -10,9 +10,7 @@ import { PlusCircle, Users, Trash2 } from "lucide-react"
 import { useAuth } from "~/hooks/useAuth"
 
 export default function Groups() {
-  const loggedIn = useAuth()
-  if (!loggedIn) return null;
-  
+
   const { groups, deleteGroup, addGroup, contacts } = useGlobalStore()
   const [newGroupName, setNewGroupName] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -33,7 +31,7 @@ export default function Groups() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="flex-1 bg-gray-50/50">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-4xl font-black tracking-tight">Groups</h1>

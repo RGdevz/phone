@@ -22,13 +22,13 @@ export default function MyHeader() {
   ];
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-white shadow-sm">
-      <div className="border-b bg-main">
+    <header className="w-full top-0 z-50 bg-white shadow-sm">
+      <div className="">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             {/* Left side: logo and user info if logged in */}
             <div className="flex items-center gap-4 lg:gap-8">
-              <Link viewTransition to={'/'} className="flex items-center gap-2 group">
+              <Link to={'/'} className="flex items-center gap-2 group">
                 <div className="bg-gradient-to-r from-amber-200 to-amber-100 p-2 rounded-lg shadow-sm group-hover:shadow-md transition-all">
                   <Phone className="h-5 w-5 text-amber-700" />
                 </div>
@@ -47,7 +47,6 @@ export default function MyHeader() {
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
-                  viewTransition
                   to={link.to}
                   className="text-lg text-neutral-900 hover:text-amber-600 transition-colors"
                 >
@@ -59,12 +58,12 @@ export default function MyHeader() {
                 <Button 
                   onClick={logout}
                   variant="neutral"
-                  className="border-amber-200 hover:bg-amber-50"
+                  className=" hover:bg-amber-50"
                 >
                   Logout
                 </Button>
               ) : (
-                <Link viewTransition to="/login">
+                <Link to="/login">
                   <Button className="bg-amber-100 hover:bg-amber-200 text-black">
                     Login
                   </Button>
@@ -98,7 +97,6 @@ export default function MyHeader() {
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
-                  viewTransition
                   to={link.to}
                   onClick={() => setIsMenuOpen(false)}
                   className="text-lg text-neutral-900 hover:text-amber-600 transition-colors py-2"
@@ -122,7 +120,7 @@ export default function MyHeader() {
                   Logout
                 </Button>
               ) : (
-                <Link viewTransition to="/login" className="w-full" onClick={() => setIsMenuOpen(false)}>
+                <Link to="/login" className="w-full" onClick={() => setIsMenuOpen(false)}>
                   <Button className="bg-amber-100 hover:bg-amber-200 text-black w-full">
                     Login
                   </Button>

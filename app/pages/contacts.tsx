@@ -24,8 +24,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const loggedIn = useAuth()
-  if (!loggedIn) return null;
+
 
   const {contacts, groups} = useGlobalStore()
   const [search, setSearch] = useState('');
@@ -53,6 +52,7 @@ export default function Home() {
     
     return results
   }, [contacts, search, selectedGroup, showFavorites]);
+
 
   const FiltersContent = () => (
     <div className="flex flex-col gap-2">
@@ -89,8 +89,10 @@ export default function Home() {
     </div>
   );
 
+
+  
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className=" flex-1 bg-gray-50/50">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-black text-center mb-8">Phone Book</h1>
         
@@ -194,7 +196,8 @@ export default function Home() {
                 </div>
               )}
 
-              <Card className="overflow-y-auto lg:max-h-[calc(100vh-16rem)] my-scroll py-0 more-shadow overflow-x-hidden flex flex-col gap-0 bg-white lg:p-3">
+
+              <Card className="overflow-y-auto max-h-[calc(100vh-16rem)] my-scroll py-0 more-shadow overflow-x-hidden flex flex-col gap-0 bg-white lg:p-3">
                 {filteredContacts.length === 0 && (
                   <div className="text-center p-8 text-gray-500">
                     No contacts found
@@ -208,6 +211,8 @@ export default function Home() {
                   />
                 ))}
               </Card>
+
+
             </div>
           </div>
         </div>

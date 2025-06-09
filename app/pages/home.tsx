@@ -8,15 +8,13 @@ import { useAuth } from "~/hooks/useAuth";
 
 export default function Home() {
 
-  const loggedIn = useAuth()
-  if (!loggedIn) return null;
 
   const { contacts, groups } = useGlobalStore();
   const [isLoaded, setIsLoaded] = useState(false);
 
 
   useEffect(() => {
-    setIsLoaded(true);
+  setIsLoaded(true);
   }, []);
 
   const stats = [
@@ -24,19 +22,19 @@ export default function Home() {
       icon: <Phone className="h-6 w-6" />,
       label: "Total Contacts",
       value: contacts.length,
-      bgColor: "bg-amber-100"
+      bgColor: "bg-amber-100 shadow-amber-300"
     },
     {
       icon: <Users className="h-6 w-6" />,
       label: "Groups",
       value: groups.length,
-      bgColor: "bg-yellow-100"
+      bgColor: "bg-yellow-100 shadow-yellow-300"
     },
     {
       icon: <UserPlus className="h-6 w-6" />,
       label: "Favorites",
       value: contacts.filter(c => c.isFavorite).length,
-      bgColor: "bg-orange-100"
+      bgColor: "bg-orange-100 shadow-orange-300"
     }
   ];
 
@@ -56,7 +54,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="flex-1">
       <div className="container mx-auto px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -81,7 +79,7 @@ export default function Home() {
               animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
-              <Card className={`p-6 text-center shadow-lg hover:shadow-xl transition-all duration-300 ${stat.bgColor}`}>
+              <Card className={`p-6 text-center shadow-lg hover:shadow-xl border-0 transition-all duration-300  ${stat.bgColor}`}>
                 <div className="flex items-center justify-center mb-4">
                   {stat.icon}
                 </div>
@@ -119,13 +117,15 @@ export default function Home() {
                 animate={{ opacity: isLoaded ? 1 : 0, x: isLoaded ? 0 : -20 }}
                 transition={{ duration: 0.5, delay: 0.9 + (i * 0.1) }}
               >
-                <Link viewTransition to={link.href} className="block">
+                <Link viewTransition to={link.href}
+                 prefetch="viewport" 
+                 className="block">
                   <Card className="p-6 hover:scale-101 transition-all duration-300 cursor-pointer hover:bg-gray-50">
-                    <div className="flex items-center gap-3 mb-2">
-                      {link.icon}
-                      <h3 className="font-semibold">{link.label}</h3>
-                    </div>
-                    <p className="text-gray-900">{link.description}</p>
+                  <div className="flex items-center gap-3 mb-2">
+                  {link.icon}
+                  <h3 className="font-semibold">{link.label}</h3>
+                  </div>
+                  <p className="text-gray-900">{link.description}</p>
                   </Card>
                 </Link>
               </motion.div>
