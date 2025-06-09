@@ -1,1 +1,0 @@
-import{p as o,r}from"./chunk-XJI4KG32-C1vvKahF.js";import{u as a}from"./state-CNeEXuqY.js";function n(){const{loggedIn:e}=a(),t=o();return r.useEffect(()=>{e||t("/login",{replace:!0})},[e,t]),e}export{n as u};
