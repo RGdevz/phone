@@ -13,7 +13,7 @@ import { Command, CommandEmpty, CommandInput, CommandList } from "~/components/u
 import LoadingSpinner from "~/my-components/spinner";
 import { useAuth } from "~/hooks/useAuth";
 import { type MyGroupEnum, myGroups } from "~/constants";
-import { X, Star } from "lucide-react";
+import { X, Star, ChevronDown } from "lucide-react";
 import { cn } from "~/lib/utils";
 
 export function meta({}: Route.MetaArgs) {
@@ -31,6 +31,7 @@ export default function Home() {
   const [search, setSearch] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<MyGroupEnum>('')
   const [showFavorites, setShowFavorites] = useState(false)
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
 
   const filteredContacts = useMemo(() => {
     let results = contacts.filter(Boolean).toSorted((a,b)=>a.name.localeCompare(b.name))
@@ -53,6 +54,41 @@ export default function Home() {
     return results
   }, [contacts, search, selectedGroup, showFavorites]);
 
+  const FiltersContent = () => (
+    <div className="flex flex-col gap-2">
+      <Button
+        variant="neutral"
+        onClick={() => setShowFavorites(!showFavorites)}
+        className={cn(
+          "flex items-center gap-2 px-4 py-2",
+          showFavorites && "bg-amber-100 hover:bg-amber-200"
+        )}
+      >
+        <Star className={cn("h-5 w-5", showFavorites ? "fill-amber-400 text-amber-400" : "text-gray-400")} />
+        <span>Show only Favorites</span>
+      </Button>
+
+      <h4 className="text-lg font-bold py-2">Groups</h4>
+
+      {groups.map((group, i) => (
+        <Button
+          key={i}
+          variant="neutral"
+          className={`w-full py-4 justify-start text-left font-medium transition-colors ${
+            selectedGroup === group 
+              ? 'bg-amber-100 hover:bg-amber-200' 
+              : 'hover:bg-gray-100'
+          }`}
+          onClick={() => {
+            setSelectedGroup(group === selectedGroup ? '' : group)
+          }}
+        >
+          {group}
+        </Button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50/50">
       <div className="container mx-auto px-4 py-8">
@@ -62,56 +98,37 @@ export default function Home() {
           {/* Left Column - Groups and Actions */}
           <div className="col-span-12 lg:col-span-3">
             <div className="flex flex-col gap-4">
+              {/* Mobile Filters */}
+              <div className="lg:hidden">
+                <button
+                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+                  className="w-full flex items-center justify-between p-4 bg-amber-200 rounded-lg hover:bg-amber-300 transition-colors"
+                >
+                  <span className="text-lg font-bold">Filters</span>
+                  <ChevronDown className={cn("h-5 w-5 transition-transform", isFiltersOpen && "rotate-180")} />
+                </button>
+                
+                <div className={cn(
+                  "overflow-hidden transition-all duration-300 ease-in-out",
+                  isFiltersOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                )}>
+                  <Card className="mt-2 border-amber-200">
+                    <CardContent className="pt-6">
+                      <FiltersContent />
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
               
-              
-              
-              <Card className="py-10 bg-amber-200">
+              {/* Desktop Filters */}
+              <Card className="py-10 bg-amber-200 hidden lg:block">
                 <CardHeader>
                   <CardTitle className="text-xl font-bold">Filters</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-col gap-2">
-              
-              
-                  <Button
-                  variant="neutral"
-                  onClick={() => {
-                    setShowFavorites(!showFavorites)
-                 
-                  }}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2",
-                    showFavorites && "bg-amber-100 hover:bg-amber-200"
-                  )}
-                >
-                  <Star className={cn("h-5 w-5", showFavorites ? "fill-amber-400 text-amber-400" : "text-gray-400")} />
-                  <span>Show only Favorites</span>
-                </Button>
-
-                <h4 className="text-lg font-bold py-2">Groups</h4>
-
-                    {groups.map((group, i) => (
-                      <Button
-                        key={i}
-                        variant="neutral"
-                        className={`w-full py-4 justify-start text-left font-medium transition-colors ${
-                          selectedGroup === group 
-                            ? 'bg-amber-100 hover:bg-amber-200' 
-                            : 'hover:bg-gray-100'
-                        }`}
-                        onClick={() => {
-                          setSelectedGroup(group === selectedGroup ? '' : group)
-                        }}
-                      >
-                        {group}
-                      </Button>
-                    ))}
-                  </div>
+                  <FiltersContent />
                 </CardContent>
               </Card>
-
-
-              
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3">
@@ -141,7 +158,6 @@ export default function Home() {
                     placeholder="Search contacts..." 
                   />
                 </Command>
-
               </div>
 
               {/* Filter Indicators */}
