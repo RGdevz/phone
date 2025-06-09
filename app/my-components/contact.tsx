@@ -16,7 +16,6 @@ import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import type { ContactType, ContactTypeNoID } from "~/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
-import { myGroups, type MyGroupEnum } from "~/constants";
 import { Star } from "lucide-react";
 
 
@@ -24,7 +23,7 @@ interface p extends  Omit<React.ComponentProps<'div'>,'id'>, ContactType{}
 
 export default function Contact(props:p){
 
-  const {removeContact,editContact} = useGlobalStore()
+  const {removeContact,editContact,groups} = useGlobalStore()
 
   const [open,setOpen] = useState(false)
 
@@ -37,7 +36,7 @@ export default function Contact(props:p){
 
     const name = form.get('name') as string
     const phone = form.get('phone') as string
-    const group = form.get('group') as MyGroupEnum
+    const group = form.get('group') as string
     const isFavorite = form.get('isFavorite') === 'true'
 
     editContact(props.id,{name,phone,group:group,isFavorite:isFavorite})
@@ -137,7 +136,7 @@ export default function Contact(props:p){
  <select defaultValue={props.group}
   name="group" 
   className=" col-span-3 p-1 rounded-base border-2 bg-white">
-  {myGroups.map(x=><option>{x}</option>)}
+  {groups.map(x=><option>{x}</option>)}
  </select>
 
    <Label className="text-right">Favorite</Label>
