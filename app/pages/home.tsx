@@ -8,8 +8,8 @@ import { useAuth } from "~/hooks/useAuth";
 
 export default function Home() {
 
-    const loggedIn = useAuth()
-    if (!loggedIn) return null;
+  const loggedIn = useAuth()
+  if (!loggedIn) return null;
 
   const { contacts, groups } = useGlobalStore();
   const [isLoaded, setIsLoaded] = useState(false);
@@ -34,8 +34,8 @@ export default function Home() {
     },
     {
       icon: <UserPlus className="h-6 w-6" />,
-      label: "No Group",
-      value: contacts.filter(c => !c.group || c.group === "No Group").length,
+      label: "Favorites",
+      value: contacts.filter(c => c.isFavorite).length,
       bgColor: "bg-orange-100"
     }
   ];

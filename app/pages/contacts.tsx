@@ -13,7 +13,8 @@ import { Command, CommandEmpty, CommandInput, CommandList } from "~/components/u
 import LoadingSpinner from "~/my-components/spinner";
 import { useAuth } from "~/hooks/useAuth";
 import { type MyGroupEnum, myGroups } from "~/constants";
-import { X } from "lucide-react";
+import { X, Star } from "lucide-react";
+import { cn } from "~/lib/utils";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -29,17 +30,28 @@ export default function Home() {
   const {contacts, groups} = useGlobalStore()
   const [search, setSearch] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<MyGroupEnum>('')
+  const [showFavorites, setShowFavorites] = useState(false)
 
   const filteredContacts = useMemo(() => {
     let results = contacts.filter(Boolean).toSorted((a,b)=>a.name.localeCompare(b.name))
+    
+    // Apply search filter
     results = results.filter((c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search)
     )
+    
+    // Apply group filter
     if (selectedGroup){
       results = results.filter(x=>x.group == selectedGroup)
     }
+    
+    // Apply favorites filter
+    if (showFavorites) {
+      results = results.filter(x => x.isFavorite)
+    }
+    
     return results
-  }, [contacts, search, selectedGroup]);
+  }, [contacts, search, selectedGroup, showFavorites]);
 
   return (
     <div className="min-h-screen bg-gray-50/50">
@@ -50,12 +62,34 @@ export default function Home() {
           {/* Left Column - Groups and Actions */}
           <div className="col-span-12 lg:col-span-3">
             <div className="flex flex-col gap-4">
+              
+              
+              
               <Card className="py-10 bg-amber-200">
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold">Groups</CardTitle>
+                  <CardTitle className="text-xl font-bold">Filters</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col gap-2">
+              
+              
+                  <Button
+                  variant="neutral"
+                  onClick={() => {
+                    setShowFavorites(!showFavorites)
+                 
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2",
+                    showFavorites && "bg-amber-100 hover:bg-amber-200"
+                  )}
+                >
+                  <Star className={cn("h-5 w-5", showFavorites ? "fill-amber-400 text-amber-400" : "text-gray-400")} />
+                  <span>Show only Favorites</span>
+                </Button>
+
+                <h4 className="text-lg font-bold py-2">Groups</h4>
+
                     {groups.map((group, i) => (
                       <Button
                         key={i}
@@ -65,7 +99,9 @@ export default function Home() {
                             ? 'bg-amber-100 hover:bg-amber-200' 
                             : 'hover:bg-gray-100'
                         }`}
-                        onClick={() => setSelectedGroup(group === selectedGroup ? '' : group)}
+                        onClick={() => {
+                          setSelectedGroup(group === selectedGroup ? '' : group)
+                        }}
                       >
                         {group}
                       </Button>
@@ -73,6 +109,9 @@ export default function Home() {
                   </div>
                 </CardContent>
               </Card>
+
+
+              
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-3">
@@ -94,31 +133,48 @@ export default function Home() {
           {/* Right Column - Contacts */}
           <div className="col-span-12 lg:col-span-9">
             <div className="flex flex-col gap-4">
-              <Command className="p-3">
-                <CommandInput 
-                  className="placeholder-black" 
-                  onValueChange={v=>setSearch(v)} 
-                  placeholder="Search contacts..." 
-                />
-              </Command>
+              <div className="flex gap-4 items-center">
+                <Command className="p-3 flex-1">
+                  <CommandInput 
+                    className="placeholder-black" 
+                    onValueChange={v=>setSearch(v)} 
+                    placeholder="Search contacts..." 
+                  />
+                </Command>
 
-              {/* Filter Indicator */}
-              {selectedGroup && (
+              </div>
+
+              {/* Filter Indicators */}
+              {(showFavorites || selectedGroup) && (
                 <div className="flex items-center gap-2 px-2">
-                  <span className="text-sm text-gray-600">
-                    Filtered by group:
-                  </span>
-                  <div className="bg-amber-100 px-3 py-1 rounded-full flex items-center gap-2">
-                    <span className="font-medium">{selectedGroup}</span>
-                    <Button
-                      variant="neutral"
-                      size="icon"
-                      className="h-5 w-5 rounded-full hover:bg-amber-200"
-                      onClick={() => setSelectedGroup('')}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
+                  {showFavorites && (
+                    <div className="bg-amber-100 px-3 py-1 rounded-full flex items-center gap-2">
+                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                      <span className="font-medium">Showing favorites</span>
+                      <Button
+                        variant="neutral"
+                        size="icon"
+                        className="h-5 w-5 rounded-full hover:bg-amber-200"
+                        onClick={() => setShowFavorites(false)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {selectedGroup && (
+                    <div className="bg-amber-100 px-3 py-1 rounded-full flex items-center gap-2">
+                      <span className="font-medium">{selectedGroup}</span>
+                      <Button
+                        variant="neutral"
+                        size="icon"
+                        className="h-5 w-5 rounded-full hover:bg-amber-200"
+                        onClick={() => setSelectedGroup('')}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 

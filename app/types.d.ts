@@ -5,6 +5,7 @@ export interface ContactType{
     phone:string  ,
     id:string
     group?:MyGroupEnum
+    isFavorite?:boolean
 }
 
 

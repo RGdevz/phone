@@ -45,6 +45,9 @@ interface StateInfo {
   deleteGroup:(name:string)=>void
   addGroup:(name:string)=>void
 
+  addToFavorites:(id:string)=>void
+  removeFromFavorites:(id:string)=>void
+
 }
 
 
@@ -56,6 +59,9 @@ export const useGlobalStore = create<StateInfo>()(
   
   return {
 
+
+    addToFavorites:(id)=>set(state=>({contacts:state.contacts.map(x=>x.id == id ? {...x,isFavorite:true} :x)})),
+    removeFromFavorites:(id)=>set(state=>({contacts:state.contacts.map(x=>x.id == id ? {...x,isFavorite:false} :x)})),
 
     addGroup:(name)=>set(state=>({groups:Array.from(new Set([...state.groups,name]))})),
 
@@ -90,8 +96,11 @@ export const useGlobalStore = create<StateInfo>()(
   login:(username:string,password:string)=>set(_=>{
 
 
-    const user = users.find(x=>x.user == username && x.password == password)
-    if (!user) throw new Error('bad username')
+    const user = users.find(x=>
+     x.user.toLocaleLowerCase() == username.toLocaleLowerCase()
+     && x.password == password)
+    
+     if (!user) throw new Error('bad username')
 
 
     return{
