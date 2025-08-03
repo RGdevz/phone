@@ -25,7 +25,9 @@ export default function Contact(props:p){
 
   const {removeContact,addToFavorites,groups,editContact} = useGlobalStore()
 
-  const [open,setOpen] = useState(false)
+  const [dialogOpen,setDialogOpen] = useState(false)
+
+  const isAdmin = useGlobalStore().role == 'admin'
 
 
   const save = (e:Event) =>{
@@ -36,12 +38,15 @@ export default function Contact(props:p){
 
     const name = form.get('name') as string
     const phone = form.get('phone') as string
-    const group = form.get('group') as string
+    const group = form.get('group') as string 
     const isFavorite = form.get('isFavorite') === 'true'
+    const email = form.get('email') as string || ''
 
-    editContact(props.id,{name,phone,group:group,isFavorite:isFavorite})
 
-    setOpen(false)
+
+    editContact(props.id,{name,phone,group:group,isFavorite:isFavorite,email,img:props.img})
+
+    setDialogOpen(false)
 
   }
     
@@ -56,7 +61,8 @@ export default function Contact(props:p){
 
     <>
 
-   <div className="cursor-pointer" onClick={()=>setOpen(true)} >
+
+   <div className="cursor-pointer" onClick={()=> isAdmin && setDialogOpen(true)} >
 
     <div className={cn('p-6 relative', 'bg-main border-2',props.className)}>
   
@@ -70,14 +76,15 @@ export default function Contact(props:p){
 
     <div className="flex items-center space-x-4">
      
-     <Avatar >
-    <AvatarImage src="" />
+     <Avatar className="w-16 h-16" >
+    <AvatarImage  src={props.img || ''} />
     <AvatarFallback>{props.name.split(/\s+/).filter(Boolean).map(x=>x[0].toUpperCase()).join('')}</AvatarFallback>
     </Avatar>
 
       <div className="flex flex-col">
       {/* Name */}
       <h2 className="text-lg font-semibold">{props.name}</h2>
+       <h2 className="text-md text-gray-700">{props.email}</h2>
       <h2 className="text-md text-gray-700">{props.group}</h2>
       {/* Phone Number */}
       <p className="text-sm text-gray-600">{props.phone}</p>
@@ -92,7 +99,7 @@ export default function Contact(props:p){
 
 
 
-  <Dialog open={open} onOpenChange={setOpen} >
+  <Dialog open={dialogOpen} onOpenChange={setDialogOpen} >
   <DialogContent onOpenAutoFocus={e=>e.preventDefault()} className="sm:max-w-[425px]">
 
 
@@ -119,6 +126,7 @@ export default function Contact(props:p){
         />
        </div>
        <div className="grid grid-cols-4 items-center gap-4">
+     
         <Label htmlFor="phone" className="text-right"> Phone </Label>
         <Input
          aria-autocomplete={'none'}
@@ -128,8 +136,18 @@ export default function Contact(props:p){
         id="phone"
         type="tel"
         defaultValue={props.phone}
-        className="col-span-3"
-        />
+        className="col-span-3"/>
+
+
+          <Label htmlFor="email" className="text-right"> Email </Label>
+        <Input
+        aria-autocomplete={'none'}
+        name="email"
+        id="email"
+        type="email"
+        defaultValue={props.email}
+        className="col-span-3"/>
+
 
    <Label className="text-right"> Group </Label>
  
@@ -152,14 +170,15 @@ export default function Contact(props:p){
   </div>
 
 
-    <DialogFooter>
+  <DialogFooter>
       
   <div className="flex gap-3 lg:flex-row flex-col">
 
-  <NiceAlert message="Click continue to delete the contact" 
+  <NiceAlert
+   message="Click continue to delete the contact" 
   onOk={()=>{
    removeContact(props.id)
-   setOpen(false)
+   setDialogOpen(false)
   }
   }>
 

@@ -33,25 +33,27 @@ export default function GenericDialog({
 }: GenericDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+
       <DialogTrigger asChild>
-        {trigger}
+      {trigger}
       </DialogTrigger>
+      
       <DialogContent className={className}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && (
-            <DialogDescription>
-              {description}
-            </DialogDescription>
+          <DialogDescription>
+         {description}
+          </DialogDescription>
           )}
         </DialogHeader>
         <div className="py-4">
           {children}
         </div>
         {footer && (
-          <DialogFooter>
-            {footer}
-          </DialogFooter>
+       <DialogFooter>
+       {footer}
+       </DialogFooter>
         )}
       </DialogContent>
     </Dialog>

@@ -3,15 +3,15 @@ import { Input } from "~/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import NiceAlert from "~/my-components/nice-alert"
 import GenericDialog from "~/my-components/generic-dialog"
-import Contact from "~/my-components/contact"
+import ContactCard from "~/my-components/contact-card"
 import { useGlobalStore } from "~/state"
 import { useState } from "react"
 import { PlusCircle, Users, Trash2 } from "lucide-react"
-import { useAuth } from "~/hooks/useAuth"
+
 
 export default function Groups() {
 
-  const { groups, deleteGroup, addGroup, contacts } = useGlobalStore()
+  const { groups, deleteGroup, addGroup, contacts,role } = useGlobalStore()
   const [newGroupName, setNewGroupName] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -35,11 +35,12 @@ export default function Groups() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <h1 className="text-4xl font-black tracking-tight">Groups</h1>
-          <GenericDialog
+         
+          {role == 'admin' && (<GenericDialog
             trigger={
               <Button size="lg" className="gap-2">
-                <PlusCircle className="h-5 w-5" />
-                New Group
+              <PlusCircle className="h-5 w-5" />
+              New Group
               </Button>
             }
             title="Create New Group"
@@ -49,16 +50,14 @@ export default function Groups() {
             footer={
               <div className="flex gap-2 justify-end">
                 <Button
-                  variant="neutral"
-                  onClick={() => setDialogOpen(false)}
-                >
-                  Cancel
+               variant="neutral"
+               onClick={() => setDialogOpen(false)} >
+               Cancel
                 </Button>
                 <Button
-                  onClick={handleAddGroup}
-                  disabled={!newGroupName.trim()}
-                >
-                  Create Group
+                onClick={handleAddGroup}
+                disabled={!newGroupName.trim()}>
+                Create Group
                 </Button>
               </div>
             }
@@ -72,6 +71,8 @@ export default function Groups() {
               autoFocus
             />
           </GenericDialog>
+          )
+          }
         </div>
 
         {groups.length === 0 ? (
@@ -103,38 +104,44 @@ export default function Groups() {
                         <span className="text-sm text-gray-500">
                           {groupContacts.length} {groupContacts.length === 1 ? 'contact' : 'contacts'}
                         </span>
-                        <NiceAlert
-                          message={`Are you sure you want to delete "${group}"?`}
-                          onOk={() => deleteGroup(group)}
+                     
+                     {role == 'admin' && (
+
+                       <NiceAlert
+                       message={`Are you sure you want to delete "${group}"?`}
+                       onOk={() => deleteGroup(group)}
                         >
                           <Button 
-                            variant="neutral" 
-                            size="icon"
+                         variant="neutral" 
+                         size="icon"
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                        <Trash2 className="h-4 w-4" />
+                        </Button>
                         </NiceAlert>
+                     )
+                     }
+                      
+
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="p-0 overflow-auto h-[calc(32rem-4rem)]">
                     {groupContacts.length === 0 ? (
                       <div className="flex flex-col items-center justify-center p-6 text-center">
-                        <p>No contacts in this group</p>
+                      <p>No contacts in this group</p>
                       </div>
                     ) : (
                       <div className="divide-y">
                         {groupContacts.map((contact, index) => (
-                          <Contact
-                            key={contact.id}
-                            {...contact}
-                            className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
+                          <ContactCard
+                          key={contact.id} {...contact}
+                          className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
                           />
                         ))}
                       </div>
                     )}
                   </CardContent>
-                </Card>
+                </Card>  
               )
             })}
           </div>

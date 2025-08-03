@@ -11,7 +11,7 @@ export default function MyHeader() {
 
   function logout(){
     localStorage.removeItem('store')
-    window.location.href = '/phone'
+    window.location.reload()
   }
 
   const navLinks = [

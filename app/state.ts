@@ -1,173 +1,170 @@
-import { create } from 'zustand'
-import {  persist } from 'zustand/middleware'
+import { create, type StateCreator } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { v4 as uuidv4 } from 'uuid';
-import type { ContactType, ContactTypeNoID } from './types';
-import { myGroups, type MyGroupEnum } from './constants';
+import type { ContactType, ContactTypeNoID, RandomUser } from './types';
+import { myGroups } from './constants';
+import { showDialog } from './root';
 
-
+// Hardcoded users for login
 const users = [
+  { user: 'roei', password: '123', role: 'admin' },
+  { user: 'user', password: '123', role: 'user' },
+] satisfies Array<{ user: string, password: string, role: 'admin' | 'user' }>
 
-  {user:'roei',password:'123',role:'admin'},
-  {user:'user',password:'123',role:'user'},
-] satisfies Array<{user:string,password:string,role:'admin'|'user'}>
+// Fetch dummy contacts from randomuser.me API
+async function dummyDataApi() {
+  const res = await (await fetch('https://randomuser.me/api/?results=5')).json() as RandomUser
+  const contacts = Array<ContactType>()
 
-function dummyData(){
-  const dummyData = [
-  { name: 'Alice Johnson', phone: '555-123-4567', id: '1' },
-  { name: 'Bob Martinez', phone: '555-987-6543', id: '2' },
-  { name: 'Carla Nguyen', phone: '555-246-8101', id: '3' },
-  { name: 'David Smith', phone: '555-369-1212', id: '4' },
-].map(x=>({
+  for (let user of res.results) {
+    contacts.push({
+      name: [user.name.first, user.name.last].join(' '),
+      phone: user.cell,
+      id: uuidv4(),
+      group: myGroups[Math.floor(Math.random() * 3)],
+      email: user.email,
+      img: user.picture.medium
+    })
+  }
 
- ...x,
- group:myGroups[Math.floor(Math.random() * 3)]
-
-})
-) as Array<ContactType>;
- return dummyData
+  return contacts
 }
 
-
-
-
+// Zustand store interface definition
 interface StateInfo {
-  username:string,
-  loggedIn:boolean,
-  login:(username:string,password:string)=>void,
-  contacts:Array<ContactType>,
-  addContact:(user:ContactTypeNoID) =>unknown
-  removeContact:(id:string) => unknown
-  editContact:(id:string,contact:ContactTypeNoID)=>unknown
-  setContacts:(list:Array<ContactType>)=>any
-  role:'admin'|'user'
-  setGroups:(arr:string[])=>void
-  groups:string[]
-  deleteGroup:(name:string)=>void
-  addGroup:(name:string)=>void
+  username: string
+  loggedIn: boolean
+  login: (username: string, password: string) => void
 
-  addToFavorites:(id:string)=>void
-  removeFromFavorites:(id:string)=>void
+  contacts: Array<ContactType>
+  addContact: (user: ContactTypeNoID) => unknown
+  removeContact: (id: string) => unknown
+  editContact: (id: string, contact: ContactTypeNoID) => unknown
+  setContacts: (list: Array<ContactType>) => any
 
+  role: 'admin' | 'user'
+
+  setGroups: (arr: string[]) => void
+  groups: string[]
+  deleteGroup: (name: string) => void
+  addGroup: (name: string) => void
+
+  addToFavorites: (id: string) => void
+  removeFromFavorites: (id: string) => void
 }
 
-
-
-
-export const useGlobalStore = create<StateInfo>()( 
-  
-  persist((set,_get)=>{
-  
+// Store implementation
+const theStore: StateCreator<StateInfo> = (set, _get) => {
   return {
 
+    // Toggle favorite on contact
+    addToFavorites: (id) =>
+      set(state => ({
+        contacts: state.contacts.map(x => x.id == id ? { ...x, isFavorite: !x.isFavorite } : x)
+      })),
 
-    addToFavorites:(id)=>set(state=>({contacts:state.contacts.map(x=>x.id == id ? {...x,isFavorite:!x.isFavorite} :x)})),
-    removeFromFavorites:(id)=>set(state=>({contacts:state.contacts.map(x=>x.id == id ? {...x,isFavorite:false} :x)})),
+    // Remove from favorites explicitly
+    removeFromFavorites: (id) =>
+      set(state => ({
+        contacts: state.contacts.map(x => x.id == id ? { ...x, isFavorite: false } : x)
+      })),
 
-    addGroup:(name)=>set(state=>({groups:Array.from(new Set([...state.groups,name]))})),
+    // Add new group (admin only)
+    addGroup: (name) => set(state => {
+      if (state.role != 'admin') return ({})
+      return ({ groups: Array.from(new Set([...state.groups, name])) })
+    }),
 
-
-    deleteGroup:(name)=>set(state=>{
-    
-      const ind = state.groups.findIndex(x=>x == name)
+    // Delete group and remove it from contacts (admin only)
+    deleteGroup: (groupName) => set(state => {
+      if (state.role != 'admin') return ({})
+      const ind = state.groups.findIndex(x => x == groupName)
       if (ind == -1) return ({})
-
-      // Update contacts in the deleted group to 'No Group'
-      const updatedContacts = state.contacts.filter(x=>x.group != name)
-
+      const updatedContacts = state.contacts.filter(x => x.group != groupName)
       return {
         groups: state.groups.toSpliced(ind, 1),
         contacts: updatedContacts
       }
     }),
 
+    // Replace group list
+    setGroups: (arr) => set(() => ({ groups: [...arr] })),
 
+    // Default groups from constants
+    groups: [...myGroups],
 
-  setGroups:(arr)=>set(x=>({groups:[...arr]})),
+    // Default role
+    role: 'user',
 
-  groups:[...myGroups],
+    // Auth state
+    loggedIn: false,
+    username: '',
 
-  role:'user',
+    // Login logic
+    login: (username: string, password: string) => set(() => {
+      const user = users.find(
+        x => x.user.toLocaleLowerCase() == username.toLocaleLowerCase() && x.password == password
+      )
+      if (!user) throw new Error('bad username or password')
+      return {
+        role: user.role,
+        username: user.user,
+        loggedIn: true
+      }
+    }),
 
-  loggedIn:false,
+    // Replace contact list
+    setContacts: (list) => set(() => ({ contacts: list })),
 
-  username:'',
+    contacts: [],
 
+    // Add new contact (admin only)
+    addContact: (theContact: ContactTypeNoID) => set(state => {
+      if (state.role != 'admin') return ({})
 
-  login:(username:string,password:string)=>set(_=>{
+      theContact.phone = theContact.phone.trim()
 
+      // Prevent duplicates
+      if (state.contacts.find(x => x.phone == theContact.phone)) {
+        showDialog(`already have contact with phone ${theContact.phone}`)
+        return ({})
+      }
 
-    const user = users.find(x=>
-     x.user.toLocaleLowerCase() == username.toLocaleLowerCase()
-     && x.password == password)
-    
-     if (!user) throw new Error('bad username')
+      const c = { ...theContact, id: uuidv4() }
+      c.group = c.group || 'No Group'
+      return { contacts: [...state.contacts, c] }
+    }),
 
+    // Edit contact by ID (admin only)
+    editContact: (id, contact) => set(state => {
+      if (state.role != 'admin') return ({})
+      const index = state.contacts.findIndex(x => x.id == id)
+      if (index == -1) return ({})
 
-    return{
-     role:user.role,
-    username:user.user,
-    loggedIn:true
-    }
+      const copy = [...state.contacts]
+      copy[index] = { ...contact, id }
+      return ({ contacts: copy })
+    }),
 
-   }
-   ),
-
-
-
-
-setContacts:(list)=>set(x=>({contacts:list})),
-
-contacts:[...dummyData()],
-
-
-
-addContact:(user:ContactTypeNoID)=> set(x=>{
-  
- const c = {...user,id:uuidv4()}
- c.group = c.group || 'No Group'
- return{
- contacts:[...x.contacts,c]
- }
-}
-),
-
-
-editContact:(id,contact) => set(x=>{
-
- const index = x.contacts.findIndex(x=>x.id == id)
- if (index == -1) return ({})
- const copy = [...x.contacts]
-copy[index] =  {...contact,id}
-
-return ({contacts:copy})
-
-}
-),
-
-
-
-removeContact:(id:string) => set(x=> {
-
-   const index = x.contacts.findIndex(x=>x.id == id)
-
-   if (index == -1) return ({})
-
-  return ({contacts:x.contacts.toSpliced(index,1)})
-
+    // Remove contact by ID (admin only)
+    removeContact: (id: string) => set(state => {
+      if (state.role != 'admin') return ({})
+      const index = state.contacts.findIndex(x => x.id == id)
+      if (index == -1) return ({})
+      return ({ contacts: state.contacts.toSpliced(index, 1) })
+    }),
+  }
 }
 
-)
+// Create Zustand store (no persist used here)
+export const useGlobalStore = create(theStore)
 
-}
-},{name:'store'}
-))
+// Fetch initial dummy contacts at startup
+dummyDataApi().then(c => useGlobalStore.getState().setContacts(c))
 
-
-
-
-
-
-export function resetContacts(){
-  useGlobalStore.getState().setContacts(...[dummyData()])
+// Reset contacts and groups to initial dummy state (admin only)
+export function resetContacts() {
+  if (useGlobalStore.getState().role != 'admin') return
+  dummyDataApi().then(c => useGlobalStore.getState().setContacts(c))
   useGlobalStore.getState().setGroups([...myGroups])
 }

@@ -2,16 +2,12 @@ import type { Route } from "./+types/home";
 
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
-import { Dialog } from "~/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "~/components/ui/alert-dialog";
-import Contact from "~/my-components/contact";
-import AddContactView from "~/my-components/add-contact";
+import Contact from "~/my-components/contact-card";
+import AddContactDialog from "~/my-components/add-contact";
 import { resetContacts, useGlobalStore } from "~/state";
-import { useEffect, useMemo, useState } from "react";
+import {   useMemo, useState } from "react";
 import NiceAlert from "~/my-components/nice-alert";
 import { Command, CommandEmpty, CommandInput, CommandList } from "~/components/ui/command";
-import LoadingSpinner from "~/my-components/spinner";
-import { useAuth } from "~/hooks/useAuth";
 import { type MyGroupEnum, myGroups } from "~/constants";
 import { X, Star, ChevronDown } from "lucide-react";
 import { cn } from "~/lib/utils";
@@ -26,18 +22,18 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
 
 
-  const {contacts, groups} = useGlobalStore()
+  const {contacts, groups,setContacts,role} = useGlobalStore()
   const [search, setSearch] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<MyGroupEnum>('')
   const [showFavorites, setShowFavorites] = useState(false)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
 
   const filteredContacts = useMemo(() => {
-    let results = contacts.filter(Boolean).toSorted((a,b)=>a.name.localeCompare(b.name))
+    let results = contacts.filter(Boolean).toSorted((a,b)=>a.name?.localeCompare(b.name))
     
     // Apply search filter
     results = results.filter((c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) || c.phone.includes(search)
+      c.name.toLowerCase().includes(search.toLowerCase()) || c.phone?.includes(search)
     )
     
     // Apply group filter
@@ -52,6 +48,7 @@ export default function Home() {
     
     return results
   }, [contacts, search, selectedGroup, showFavorites]);
+
 
 
   const FiltersContent = () => (
@@ -116,7 +113,7 @@ export default function Home() {
                 )}>
                   <Card className="mt-2 border-amber-200">
                     <CardContent className="pt-6">
-                      <FiltersContent />
+                   <FiltersContent />
                     </CardContent>
                   </Card>
                 </div>
@@ -132,32 +129,49 @@ export default function Home() {
                 </CardContent>
               </Card>
 
-              {/* Action Buttons */}
+              {/* Admin Action Buttons */}
+
+
+           {role == 'admin' && (
+              <div>
               <div className="flex flex-col gap-3">
-                <AddContactView>
+                <AddContactDialog>
                   <Button className="w-full py-3 bg-orange-100 hover:bg-orange-200">
                     Add Contact
                   </Button>
-                </AddContactView>
+                </AddContactDialog>
 
-                <NiceAlert message="Are you sure you want to reset all contacts?" onOk={()=>resetContacts()}>
+                <NiceAlert message="Are you sure you want to reset to default all contacts?" onOk={()=>resetContacts()}>
                   <Button className="w-full py-3 bg-amber-50 hover:bg-amber-100">
                     Reset Contacts
                   </Button>
                 </NiceAlert>
+
+
+                   <NiceAlert message="Are you sure you want to reset all contacts?" onOk={()=>setContacts([])}>
+                  <Button className="w-full py-3 bg-red-300">
+                    Delete all contacts
+                  </Button>
+                </NiceAlert>
+
               </div>
+              </div>
+            )}
+
             </div>
           </div>
+          
+
 
           {/* Right Column - Contacts */}
-          <div className="col-span-12 lg:col-span-9">
+          <div className="col-span-12 lg:col-span-9 ">
             <div className="flex flex-col gap-4">
               <div className="flex gap-4 items-center">
                 <Command className="p-3 flex-1">
                   <CommandInput 
-                    className="placeholder-black" 
-                    onValueChange={v=>setSearch(v)} 
-                    placeholder="Search contacts..." 
+                  className="placeholder-black" 
+                  onValueChange={v=>setSearch(v)} 
+                  placeholder="Search contacts..." 
                   />
                 </Command>
               </div>
@@ -170,12 +184,11 @@ export default function Home() {
                       <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                       <span className="font-medium">Showing favorites</span>
                       <Button
-                        variant="neutral"
-                        size="icon"
-                        className="h-5 w-5 rounded-full hover:bg-amber-200"
-                        onClick={() => setShowFavorites(false)}
-                      >
-                        <X className="h-3 w-3" />
+                     variant="neutral"
+                     size="icon"
+                     className="h-5 w-5 rounded-full hover:bg-amber-200"
+                     onClick={() => setShowFavorites(false)}>
+                     <X className="h-3 w-3" />
                       </Button>
                     </div>
                   )}
@@ -189,7 +202,7 @@ export default function Home() {
                         className="h-5 w-5 rounded-full hover:bg-amber-200"
                         onClick={() => setSelectedGroup('')}
                       >
-                        <X className="h-3 w-3" />
+                      <X className="h-3 w-3" />
                       </Button>
                     </div>
                   )}
@@ -197,19 +210,19 @@ export default function Home() {
               )}
 
 
-              <Card className="overflow-y-auto max-h-[calc(100vh-16rem)] my-scroll py-0 more-shadow overflow-x-hidden flex flex-col gap-0 bg-white lg:p-3">
+
+              <Card className="min-h-[300px] lg:min-h-auto overflow-y-auto max-h-[calc(100vh-16rem)] my-scroll py-0 more-shadow overflow-x-hidden flex flex-col gap-0 bg-white lg:p-3">
                 {filteredContacts.length === 0 && (
-                  <div className="text-center p-8 text-gray-500">
-                    No contacts found
-                  </div>
+                <div className="text-center p-8 text-gray-500">
+                No contacts found
+                </div>
                 )}
+
                 {filteredContacts.map((contact, i) => (
-                  <Contact 
-                    key={contact.id} 
-                    {...contact} 
-                    className={i % 2 !== 0 ? 'bg-amber-50' : ''}
-                  />
+                <Contact key={contact.id}  {...contact} className={i % 2 !== 0 ? 'bg-amber-50' : ''}
+                />
                 ))}
+
               </Card>
 
 
