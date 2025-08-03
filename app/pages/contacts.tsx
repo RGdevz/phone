@@ -1,4 +1,3 @@
-import type { Route } from "./+types/home";
 
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
@@ -12,12 +11,7 @@ import { type MyGroupEnum, myGroups } from "~/constants";
 import { X, Star, ChevronDown } from "lucide-react";
 import { cn } from "~/lib/utils";
 
-export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
-}
+
 
 export default function Home() {
 
@@ -73,8 +67,8 @@ export default function Home() {
           variant="neutral"
           className={`w-full py-4 justify-start text-left font-medium transition-colors ${
             selectedGroup === group 
-              ? 'bg-amber-100 hover:bg-amber-200' 
-              : 'hover:bg-gray-100'
+           ? 'bg-amber-100 hover:bg-amber-200' 
+           : 'hover:bg-gray-100'
           }`}
           onClick={() => {
             setSelectedGroup(group === selectedGroup ? '' : group)

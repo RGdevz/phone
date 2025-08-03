@@ -4,14 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router";
 import { useGlobalStore } from "~/state";
-import type { FormEventHandler } from "react";
 import { showDialog } from "~/root";
 
 
 export default function LoginPage() {
 
   const {login:loginFunc} = useGlobalStore()
-  
+
   const navigate = useNavigate();
 
   function sumbitForm(e:Event){

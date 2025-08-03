@@ -74,7 +74,13 @@ export default function AddContactDialog(props:PropsWithChildren) {
 
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}> {/* No open or onOpenChange props */}
+        <Dialog open={open} onOpenChange={e=>{
+
+        setImgData('')
+
+        setOpen(e)
+
+        }}> {/* No open or onOpenChange props */}
             {/* The trigger element */}
             <DialogTrigger asChild>
                {props.children || <h1 style={{color:'red'}}>dialog component need child</h1>}
